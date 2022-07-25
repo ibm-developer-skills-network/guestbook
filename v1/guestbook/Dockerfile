@@ -1,18 +1,34 @@
+# Please choose from the below set of Docker commands to complete your Dockerfile:
+
+# COPY
+# RUN
+# ADD
+# EXPOSE
+# FROM
+# CMD
+# PUSH
+# PULL
+# WORKDIR
+
+
 FROM golang:1.15 as builder
 RUN go get github.com/codegangsta/negroni
-RUN go get github.com/gorilla/mux github.com/xyproto/simpleredis
+<Please fill in the required Docker command> go get github.com/gorilla/mux github.com/xyproto/simpleredis
 COPY main.go .
 RUN go build main.go
 
 FROM ubuntu:18.04
 
-COPY --from=builder /go//main /app/guestbook
-
-ADD public/index.html /app/public/index.html
-ADD public/script.js /app/public/script.js
-ADD public/style.css /app/public/style.css
-ADD public/jquery.min.js /app/public/jquery.min.js
+<Please fill in the required Docker command> --from=builder /go//main /app/guestbook
+<Please fill in the required Docker command> public/index.html /app/public/index.html
+<Please fill in the required Docker command> public/script.js /app/public/script.js
+<Please fill in the required Docker command> public/style.css /app/public/style.css
+<Please fill in the required Docker command> public/jquery.min.js /app/public/jquery.min.js
 
 WORKDIR /app
 CMD ["./guestbook"]
-EXPOSE 3000
+<Please fill in the required Docker command> EXPOSE 3000
+
+
+
+Footer
