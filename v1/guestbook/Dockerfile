@@ -27,4 +27,4 @@ FROM ubuntu:18.04
 
 WORKDIR /app
 CMD ["./guestbook"]
-<Please fill in the required Docker command> EXPOSE 3000
+<Please fill in the required Docker command> 3000
