@@ -17,13 +17,10 @@ limitations under the License.
 package main
 
 import (
-	"bytes"
 	"encoding/json"
-	"math/rand"
 	"net/http"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/codegangsta/negroni"
 	"github.com/gorilla/mux"
@@ -37,18 +34,10 @@ var (
 
 	// For when Redis is not used, we just keep it in memory
 	lists map[string][]string = map[string][]string{}
-
-	// For Healthz
-	startTime time.Time
-	delay     float64 = 10 + 5*rand.Float64()
 )
 
 type Input struct {
 	InputText string `json:"input_text"`
-}
-
-type Tone struct {
-	ToneName string `json:"tone_name"`
 }
 
 func GetList(key string) ([]string, error) {
@@ -113,12 +102,6 @@ func ListPushHandler(rw http.ResponseWriter, req *http.Request) {
 	key := mux.Vars(req)["key"]
 	value := mux.Vars(req)["value"]
 
-	// propogate headers to analyzer service
-	headers := getForwardHeaders(req.Header)
-
-	// Add in the "tone" analyzer results
-	value += " : " + getPrimaryTone(value, headers)
-
 	items, err := AppendToList(value, key)
 
 	if err != nil {
@@ -173,87 +156,6 @@ func HelloHandler(rw http.ResponseWriter, req *http.Request) {
 		")\n"))
 }
 
-func HealthzHandler(rw http.ResponseWriter, req *http.Request) {
-	if time.Now().Sub(startTime).Seconds() > delay {
-		http.Error(rw, "Timeout, Health check error!", http.StatusForbidden)
-	} else {
-		rw.Write([]byte("OK!"))
-	}
-}
-
-// Note: This function will not work until we hook-up the Tone Analyzer service
-func getPrimaryTone(value string, headers http.Header) (tone string) {
-	u := Input{InputText: value}
-	b := new(bytes.Buffer)
-	json.NewEncoder(b).Encode(u)
-
-	client := &http.Client{}
-	req, err := http.NewRequest("POST", "http://analyzer:80/tone", b)
-	if err != nil {
-		return "Error talking to tone analyzer service: " + err.Error()
-	}
-	req.Header.Add("Content-Type", "application/json")
-	// add headers
-	for k := range headers {
-		req.Header.Add(k, headers.Get(k))
-	}
-	// print out headers for debug
-	// fmt.Printf("getPrimaryTone headers %v", req.Header)
-
-	res, err := client.Do(req)
-	if err != nil {
-		return "Error detecting tone: " + err.Error()
-	}
-	defer res.Body.Close()
-
-	body := []Tone{}
-	
-	json.NewDecoder(res.Body).Decode(&body)
-
-	if len(body) > 0 {
-		
-		if body[0].ToneName == "excited" {
-			return "Excited (✿◠‿◠)"
-		} else if body[0].ToneName == "frustrated" {
-			return "Frustrated (ಠ_ಠ)"
-		} else if body[0].ToneName == "impolite" {
-			return "Impolite (ง’̀-‘́)ง"
-		} else if body[0].ToneName == "polite" {
-			return "Polite ◠‿◠"
-		} else if body[0].ToneName == "sad" {
-			return "Sad （︶︿︶）"
-		} else if body[0].ToneName == "satisfied" {
-			return "Satisfied ( °□° )"
-		} else if body[0].ToneName == "Sympathetic" {
-			return "Sympathetic (•_•)"
-		}
-		return body[0].ToneName
-	}
-
-	return "No Tone Detected"
-}
-
-// return the needed header for distributed tracing
-func getForwardHeaders(h http.Header) (headers http.Header) {
-	incomingHeaders := []string{
-		"x-request-id",
-		"x-b3-traceid",
-		"x-b3-spanid",
-		"x-b3-parentspanid",
-		"x-b3-sampled",
-		"x-b3-flags",
-		"x-ot-span-context"}
-
-	header := make(http.Header, len(incomingHeaders))
-	for _, element := range incomingHeaders {
-		val := h.Get(element)
-		if val != "" {
-			header.Set(element, val)
-		}
-	}
-	return header
-}
-
 // Support multiple URL schemes for different use cases
 func findRedisURL() string {
 	host := os.Getenv("REDIS_MASTER_SERVICE_HOST")
@@ -279,15 +181,12 @@ func main() {
 		defer slavePool.Close()
 	}
 
-	startTime = time.Now()
-
 	r := mux.NewRouter()
 	r.Path("/lrange/{key}").Methods("GET").HandlerFunc(ListRangeHandler)
 	r.Path("/rpush/{key}/{value}").Methods("GET").HandlerFunc(ListPushHandler)
 	r.Path("/info").Methods("GET").HandlerFunc(InfoHandler)
 	r.Path("/env").Methods("GET").HandlerFunc(EnvHandler)
 	r.Path("/hello").Methods("GET").HandlerFunc(HelloHandler)
-	r.Path("/healthz").Methods("GET").HandlerFunc(HealthzHandler)
 
 	n := negroni.Classic()
 	n.UseHandler(r)
