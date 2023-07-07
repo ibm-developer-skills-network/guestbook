@@ -14,7 +14,7 @@
 FROM golang:1.15 as builder
 RUN go get github.com/codegangsta/negroni
 <Please fill in the required Docker command> go get github.com/gorilla/mux 
-<Please fill in the required Docker command> go github.com/xyproto/simpleredis/v2
+<Please fill in the required Docker command> go get github.com/xyproto/simpleredis/v2
 COPY main.go .
 RUN go build main.go
 
