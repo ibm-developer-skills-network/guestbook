@@ -75,7 +75,7 @@
   
 #### Solution
 1. 
-        kubectl autoscale deploy guestbook --min=2 --max=10 --cpu-percent=10
+        kubectl autoscale deployment guestbook --cpu-percent=5 --min=1 --max=10
 2. 
         kubectl get hpa guestbook
 
