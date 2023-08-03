@@ -1,7 +1,6 @@
-Final Project - Build and Deploy a Guestbook App
 ##  This is from IBM course `Introduction to Containers w/Docker, Kubernetes & OpenShift`
 
-###  Asignments for v1/guestbook:
+###  Final Project: Build and Deploy a Guestbook App
 
 ####  Build the guestbook app
 1. Complete the Dockerfile with the necessary Docker commands to build and push your image. The path to this file is `guestbook/v1/guestbook/Dockerfile`
