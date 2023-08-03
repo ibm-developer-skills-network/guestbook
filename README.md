@@ -20,7 +20,8 @@
 1. 
         FROM golang:1.15 as builder
         RUN go get github.com/codegangsta/negroni
-        RUN go get github.com/gorilla/mux github.com/xyproto/simpleredis
+        RUN go get github.com/gorilla/mux
+        RUN go get github.com/xyproto/simpleredis/v2
         COPY main.go .
         RUN go build main.go
 
@@ -36,33 +37,33 @@
         CMD ["./guestbook"]
         EXPOSE 3000
 
-2. 
+3. 
        export MY_NAMESPACE=sn-labs-$USERNAME
 
-3. 
+4. 
         docker build . -t us.icr.io/$MY_NAMESPACE/guestbook:v1
 
-4. 
+5. 
         ibmcloud cr login
         ibmcloud cr region-set us-south
         docker push us.icr.io/$MY_NAMESPACE/guestbook:v1
 
-5. 
+6. 
        ibmcloud cr images
 
-6. 
+7. 
   ![image info](./images/v1-yml-file.jpg)
 
-7. 
+8. 
        kubectl apply -f deployment.yml
 
-8. 
+9. 
         kubectl port-forward deployment.apps/guestbook 3000:3000
 
-9. 
+10. 
 ![image info](./images/v1-start-app.jpg)
 
-10. 
+11. 
     ![image info](./images/v1-guestbook-app.jpg)
 ####  Autoscale the Guestbook application using Horizontal Pod Autoscaler
 1. Autoscale the Guestbook deployment using `kubectl autoscale deployment`
