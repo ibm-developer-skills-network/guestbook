@@ -12,7 +12,7 @@
 
 
 FROM golang:1.15 as builder
-RUN go get github.com/codegangsta/negroni
+RUN go get github.com/urfave/negroni
 <Please fill in the required Docker command> go get github.com/gorilla/mux 
 <Please fill in the required Docker command> go get github.com/xyproto/simpleredis/v2
 COPY main.go .
