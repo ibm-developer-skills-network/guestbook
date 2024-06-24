@@ -31,5 +31,7 @@ FROM ubuntu:18.04
 <Please fill in the required Docker command> public/style.css /app/public/style.css
 <Please fill in the required Docker command> public/jquery.min.js /app/public/jquery.min.js
 
+WORKDIR /app
+
 CMD ["./guestbook"]
 <Please fill in the required Docker command> 3000
