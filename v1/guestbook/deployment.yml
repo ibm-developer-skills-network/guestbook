@@ -31,4 +31,3 @@ spec:
             cpu: 50m
           requests:
             cpu: 20m  
-  replicas: 1
